@@ -325,73 +325,39 @@ h1,h2,h3,p,li,dt,dd,summary,figcaption,button,a{overflow-wrap:anywhere}
 .show__hint::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent);animation:pulse 2.2s var(--ease) infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 20%,transparent)}50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--acc) 5%,transparent)}}
 
-/* Frame ponsel */
-.phone{justify-self:center;width:clamp(210px,24vw,270px);aspect-ratio:9/18.6;border-radius:34px;padding:8px;
-  background:linear-gradient(160deg,#3a2a33,#171012);box-shadow:var(--shadow),0 0 0 1px var(--line-strong);position:relative}
-.phone__notch{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:38%;height:11px;border-radius:99px;background:#0d0a0c;z-index:3}
-.phone__screen{position:relative;width:100%;height:100%;border-radius:27px;overflow:hidden;
-  background:radial-gradient(120% 60% at 90% 0%,rgba(225,29,72,.16),transparent 60%),
-             radial-gradient(100% 55% at 0% 40%,rgba(225,29,72,.1),transparent 60%),#fbf1f3;
-  color:#261017;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+/* --- Glass-nav BMS (rekonstruksi setia app-baru/app.js initGlassNav) ---
+   Bubble bergerak antartab sambil mengukir lekukan via clip-path: path();
+   bentuk digambar oleh JS. Bubble gradien pink->ungu khas BMS. --- */
+.bnwrap{
+  justify-self:center;width:100%;max-width:420px;height:180px;
+  position:relative;border-radius:26px;overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(88% 78% at 88% 4%,rgba(225,29,72,.34),transparent 60%),
+    radial-gradient(80% 70% at 6% 96%,rgba(123,92,255,.30),transparent 62%);
+}
+/* Isi aplikasi samar di balik kaca supaya blur & lekukan terbaca. */
+.bnwrap::before{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 40%),
+    radial-gradient(38% 26% at 20% 26%,rgba(255,106,176,.20),transparent 70%),
+    radial-gradient(30% 24% at 78% 40%,rgba(123,92,255,.22),transparent 70%);
+  pointer-events:none;
+}
 
-/* Layar aplikasi — satu tampak aktif, sisanya tersembunyi */
-.scr{position:absolute;inset:0 0 46px 0;padding:20px 13px 0;display:flex;flex-direction:column;gap:9px;
-  opacity:0;transform:translateX(10%) scale(.985);pointer-events:none;
-  transition:opacity .5s var(--ease-out),transform .55s var(--ease-out)}
-.scr.is-on{opacity:1;transform:none;pointer-events:auto;z-index:2}
-
-.ph__bar{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.ph__kick{margin:0;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:#be123c;font-weight:700}
-.ph__title{margin:0;font-size:1.02rem;font-weight:700;color:#261017;letter-spacing:-.02em;line-height:1.05}
-
-/* Dashboard bento */
-.ph__bento{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ph__tile{background:rgba(255,255,255,.82);border:1px solid rgba(225,29,72,.12);border-radius:11px;padding:7px 8px;display:grid;gap:2px}
-.ph__tile b{font-size:.52rem;letter-spacing:.06em;text-transform:uppercase;color:#915a6d;font-weight:700}
-.ph__tile em{font-style:normal;font-size:.82rem;font-weight:700;color:#261017}
-.ph__tile--big{grid-column:span 2;background:linear-gradient(135deg,#e11d48,#be123c);border:0}
-.ph__tile--big b{color:rgba(255,255,255,.82)}
-.ph__tile--big em{font-size:1.05rem;color:#fff}
-.ph__tile--big i{font-style:normal;font-size:.55rem;color:rgba(255,255,255,.82)}
-
-.ph__card{background:rgba(255,255,255,.82);border:1px solid rgba(225,29,72,.12);border-radius:11px;padding:8px;display:grid;gap:6px}
-.ph__card>b{font-size:.6rem;color:#261017}
-.ph__row{display:block;height:7px;border-radius:99px;background:rgba(225,29,72,.12)}
-.ph__row--short{width:60%}
-
-/* File */
-.ph__search{background:rgba(255,255,255,.82);border:1px solid rgba(225,29,72,.12);border-radius:99px;padding:6px 11px;font-size:.62rem;color:#915a6d}
-.ph__file{display:flex;align-items:center;gap:7px;font-size:.62rem;color:#261017}
-.ph__file span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ph__ficon{flex:none;width:15px;height:15px;border-radius:5px;background:linear-gradient(135deg,#fb7185,#be123c)}
-
-/* Footage */
-.ph__grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
-.ph__grid span{aspect-ratio:1;border-radius:8px;background:linear-gradient(135deg,rgba(225,29,72,.28),rgba(190,18,60,.14))}
-.ph__grid span:nth-child(2){background:linear-gradient(135deg,rgba(217,119,6,.3),rgba(190,18,60,.12))}
-.ph__grid span:nth-child(5){background:linear-gradient(135deg,rgba(5,150,105,.28),rgba(190,18,60,.12))}
-
-/* Anggota */
-.ph__chips{display:flex;gap:4px;flex-wrap:wrap}
-.ph__chips span{font-size:.5rem;padding:2px 7px;border-radius:99px;background:rgba(225,29,72,.12);color:#be123c;font-weight:700}
-.ph__user{display:flex;align-items:center;gap:7px}
-.ph__av{flex:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#fda4af,#fb7185);color:#7f1d1d;font-size:.58rem;font-weight:700;display:grid;place-items:center}
-.ph__user b{display:grid;font-size:.62rem;color:#261017;line-height:1.15}
-.ph__user i{font-style:normal;font-size:.5rem;color:#915a6d;text-transform:capitalize}
-
-/* Nav bawah kaca dengan bubble yang meluncur */
-.bnav{position:absolute;left:8px;right:8px;bottom:8px;height:38px;border-radius:20px;
-  background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(8px) saturate(150%);backdrop-filter:blur(8px) saturate(150%);
-  box-shadow:0 4px 14px -8px rgba(190,18,60,.5),inset 0 0 0 1px rgba(255,255,255,.9);
-  display:flex;align-items:center;justify-content:space-around;padding:0 4px}
-.bnav__bubble{position:absolute;top:4px;left:4px;width:calc(25% - 2px);height:calc(100% - 8px);border-radius:16px;
-  background:linear-gradient(135deg,rgba(225,29,72,.9),rgba(190,18,60,.9));
-  transition:transform .55s var(--ease-spring);z-index:0}
-.bnav__tab{position:relative;z-index:1;flex:1;display:grid;justify-items:center;gap:1px;color:#915a6d;
-  transition:color .35s var(--ease)}
-.bnav__tab svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.bnav__tab i{font-style:normal;font-size:.42rem;font-weight:700;letter-spacing:.01em}
-.bnav__tab.is-on{color:#fff}
+/* Baris navigasi bawah kaca — posisi & ukuran persis BMS (360x72). */
+.bottomNav{position:absolute;left:50%;bottom:0;z-index:5;width:min(360px,100%);height:72px;transform:translateX(-50%);padding:0;border:0;background:none;box-shadow:none}
+.bnBar{position:absolute;inset:0;border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.08));-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.bnTabs{position:absolute;inset:0;display:flex}
+.bnItem{flex:1 1 0;display:grid;place-content:center;justify-items:center;color:rgba(255,255,255,.72);position:relative;gap:2px;font-size:9px;font-weight:700;text-decoration:none;z-index:2;-webkit-tap-highlight-color:transparent;background:none;border:0;padding:0;cursor:pointer;font-family:"Plus Jakarta Sans",system-ui,sans-serif}
+.bnItem svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:opacity .15s}
+.bnItem span{white-space:nowrap;transition:transform .2s}
+.bnItem.active,.bnItem.active span{color:#fff}
+.bnItem.active span{transform:translateY(4px)}
+.bnItem.active svg{opacity:0}
+.bnItem:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:12px}
+.bnBubble{position:absolute;left:0;top:0;width:48px;height:48px;border-radius:50%;color:#fff;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.7),rgba(255,255,255,.18) 55%),linear-gradient(135deg,#ff6ab0,#7b5cff);border:1px solid rgba(255,255,255,.6);box-shadow:0 8px 24px rgba(123,92,255,.55),inset 0 1px 6px rgba(255,255,255,.6);transform:translate(12px,-4px);will-change:transform;z-index:3;pointer-events:none}
+.bnBubble svg{position:absolute;left:12px;top:12px;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:0}
 
 /* ---------- 10. Cara kerja ---------- */
 .sec--proses{background:var(--surface)}
@@ -595,14 +561,13 @@ h1,h2,h3,p,li,dt,dd,summary,figcaption,button,a{overflow-wrap:anywhere}
 
 /* ---------- 17b. Responsif showcase BMS ---------- */
 @media (max-width:1080px){
-  .show__stage{grid-template-columns:1fr;gap:1.6rem}
+  .show__stage{grid-template-columns:1fr;gap:1.8rem}
   .show__copy{max-width:60ch}
-  .phone{justify-self:start}
 }
 @media (max-width:560px){
   .work--show{grid-column:1/-1}
   .show__stage{padding:1.2rem 1.1rem 1.6rem}
-  .phone{justify-self:center;width:min(72%,250px)}
+  .bnwrap{max-width:360px;width:100%}
 }
 
 /* ---------- 18. Hormati preferensi pengguna ---------- */

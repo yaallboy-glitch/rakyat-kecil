@@ -253,35 +253,80 @@ var SRC = {};
     secs.forEach(function (s) { seen.observe(s); });
   }
 
-  /* Showcase BMS: putar otomatis antar-layar + geser bubble nav.
+  /* Showcase BMS: nav kaca asli (port initGlassNav dari app-baru/app.js).
+     Bubble meluncur antartab sambil mengukir lekukan pada bilah kaca
+     lewat clip-path: path(), memantul busur, ikon menukar di tengah gerak.
      Berhenti saat di luar layar & saat pengguna minta gerak minimal. */
   var show = document.querySelector('.work--show');
   if (show) {
-    var scrs = show.querySelectorAll('.scr');
-    var tabs = show.querySelectorAll('.bnav__tab');
-    var bubble = show.querySelector('.bnav__bubble');
+    var nav = show.querySelector('.bottomNav');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    var idx = 0, timer = null;
 
-    var go = function (n) {
-      for (var i = 0; i < scrs.length; i++) scrs[i].classList.toggle('is-on', i === n);
-      for (var j = 0; j < tabs.length; j++) tabs[j].classList.toggle('is-on', j === n);
-      if (bubble) bubble.style.transform = 'translateX(' + (n * 100) + '%)';
-      idx = n;
-    };
-    var tick = function () { go((idx + 1) % scrs.length); };
+    if (nav) {
+      var _bar = nav.querySelector('.bnBar'), _bubble = nav.querySelector('.bnBubble');
+      var _icons = Array.prototype.slice.call(_bubble.children);
+      var items = Array.prototype.slice.call(nav.querySelectorAll('.bnItem'));
+      var N = items.length, H = 72, HW = 36, K = 20, D = 30, DUR = 520;
+      var W = nav.clientWidth || 360;
+      var cur = items.findIndex(function (el) { return el.classList.contains('active'); });
+      var busy = false, _timer = null;
 
-    var play = function () { if (!timer) timer = setInterval(tick, 2600); };
-    var stop = function () { if (timer) { clearInterval(timer); timer = null; } };
+      var cx = function (i) { return W / (N * 2) * (2 * i + 1); };
+      var clamp = function (v) { return Math.min(1, Math.max(0, v)); };
+      var seg = function (p, a, b) { return clamp((p - a) / (b - a)); };
+      var sine = function (t) { return -(Math.cos(Math.PI * t) - 1) / 2; };
+      var ease = function (t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+      var lerp = function (a, b, t) { return a + (b - a) * t; };
+      var path = function (x, d) {
+        var l = x - HW, r = x + HW;
+        return 'M0,0 H' + l + ' C' + (l + K) + ',0 ' + (x - K) + ',' + d + ' ' + x + ',' + d +
+               ' C' + (x + K) + ',' + d + ' ' + (r - K) + ',0 ' + r + ',0 H' + W + ' V' + H + ' H0 Z';
+      };
+      var draw = function (x, d, y) {
+        _bar.style.clipPath = "path('" + path(x, d) + "')";
+        _bubble.style.transform = 'translate(' + (x - 24) + 'px,' + y + 'px)';
+      };
+      var showIcon = function (i) {
+        _icons.forEach(function (el, j) { el.style.opacity = j === i ? 1 : 0; });
+      };
+      var rest = function () {
+        W = nav.clientWidth || 360;
+        if (cur < 0) { _bar.style.clipPath = "path('M0,0 H" + W + " V" + H + " H0 Z')"; _bubble.style.opacity = 0; return; }
+        _bubble.style.opacity = 1; showIcon(cur); draw(cx(cur), D, D - 34);
+      };
+      function go(to, onDone) {
+        if (busy || to === cur || to < 0 || to >= N) { if (onDone) onDone(); return; }
+        busy = true; W = nav.clientWidth || 360;
+        var from = cur, x1 = cx(to), x0 = from < 0 ? x1 : cx(from), D0 = from < 0 ? 0 : D, t0 = performance.now();
+        var swapped = false;
+        items.forEach(function (el) { el.classList.remove('active'); });
+        _bubble.style.opacity = 1; if (from >= 0) showIcon(from);
+        (function step(now) {
+          var p = Math.min(1, (now - t0) / DUR);
+          var close = sine(seg(p, 0, .36)), move = ease(seg(p, .18, .82)), open = sine(seg(p, .64, 1));
+          var d = p < .5 ? D0 * (1 - close) : D * open;
+          var arc = Math.sin(move * Math.PI) * 18;
+          draw(lerp(x0, x1, move), d, d - 34 - (1 - d / D) * 20 - arc);
+          if (move > .5 && !swapped) { swapped = true; showIcon(to); }
+          if (p < 1) return requestAnimationFrame(step);
+          cur = to; items[to].classList.add('active'); rest(); busy = false;
+          if (onDone) onDone();
+        })(t0);
+      }
+      window.addEventListener('resize', function () { if (!busy) rest(); });
+      rest();
 
-    go(0);
-    if (!reduce.matches && 'IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        entries.forEach(function (en) { en.isIntersecting ? play() : stop(); });
-      }, { threshold: 0.35 }).observe(show);
-      reduce.addEventListener && reduce.addEventListener('change', function (e) {
-        e.matches ? stop() : play();
-      });
+      /* Auto-cycle: tampilkan perpindahan dengan sendirinya. */
+      var autoGo = function () { go((cur + 1) % N); };
+      var play = function () { if (!_timer) _timer = setInterval(autoGo, 2400); };
+      var stop = function () { if (_timer) { clearInterval(_timer); _timer = null; } };
+
+      if (!reduce.matches && 'requestAnimationFrame' in window && 'IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) { en.isIntersecting ? play() : stop(); });
+        }, { threshold: 0.35 }).observe(show);
+        if (reduce.addEventListener) reduce.addEventListener('change', function (e) { e.matches ? stop() : play(); });
+      }
     }
   }
 
